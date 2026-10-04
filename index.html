@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>拼豆工具</title>
+  <meta name="theme-color" content="#5279fb">
+  <meta name="description" content="把照片变成拼豆图纸，支持裁剪、色板、底板分区与 PDF 导出，可离线使用。">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <main class="site-main" id="top">
+
+  <div class="app" id="maker">
+    
+
+    <aside class="toolbar">
+      <section class="panel controls" aria-label="拼豆设置">
+        <div class="control-section image-section">
+          <div class="section-heading">
+            <span>01</span>
+            <h2>图片</h2>
+          </div>
+          <label class="upload" id="dropZone">
+            <strong>上传一张照片</strong>
+            <span>支持 JPG、PNG、WEBP。人物、宠物和头像效果更清楚。</span>
+            <input id="imageInput" type="file" accept="image/*">
+          </label>
+          <div class="file-name" id="fileName">未选择图片</div>
+
+          <div class="cropper" id="cropper" aria-label="照片裁剪">
+            <div class="crop-preview">
+              <canvas id="cropCanvas" width="480" height="360" aria-label="裁剪预览"></canvas>
+            </div>
+            <div class="mini-controls">
+              <div class="control-row">
+                <div class="label-line">
+                  <label for="cropZoom">主体大小</label>
+                  <span><output id="cropZoomValue">100</output>%</span>
+                </div>
+                <input id="cropZoom" type="range" min="100" max="260" step="5" value="100">
+              </div>
+              <div class="control-row">
+                <div class="label-line">
+                  <label for="cropX">左右移动</label>
+                  <span><output id="cropXValue">0</output></span>
+                </div>
+                <input id="cropX" type="range" min="-100" max="100" step="1" value="0">
+              </div>
+              <div class="control-row">
+                <div class="label-line">
+                  <label for="cropY">上下移动</label>
+                  <span><output id="cropYValue">0</output></span>
+                </div>
+                <input id="cropY" type="range" min="-100" max="100" step="1" value="0">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="section-heading">
+            <span>02</span>
+            <h2>图纸</h2>
+          </div>
+          <div class="control-row">
+            <div class="label-line">
+              <label for="beadWidth">宽度颗数</label>
+              <span><output id="beadWidthValue">72</output> 颗</span>
+            </div>
+            <input id="beadWidth" type="range" min="12" max="72" step="1" value="72">
+          </div>
+
+          <div class="control-row">
+            <div class="label-line">
+              <label for="colorCount">颜色数量</label>
+              <span><output id="colorCountValue">28</output> 色</span>
+            </div>
+            <input id="colorCount" type="range" min="4" max="28" step="1" value="28">
+          </div>
+
+          <div class="control-row">
+            <div class="label-line">
+              <label for="colorStyle">颜色风格</label>
+              <span>影响最终色板内容</span>
+            </div>
+            <select id="colorStyle">
+              <option value="natural">接近原图</option>
+              <option value="vivid">提亮</option>
+              <option value="soft">柔化</option>
+              <option value="gray">黑白</option>
+            </select>
+          </div>
+
+          <div class="control-row">
+            <label class="switch" for="denoiseToggle">
+              <span class="switch-text">
+                <strong>去除杂色</strong>
+              </span>
+              <input id="denoiseToggle" type="checkbox">
+              <span class="switch-track" aria-hidden="true"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="section-heading">
+            <span>03</span>
+            <h2>预览</h2>
+          </div>
+          <div class="control-row">
+            <div class="label-line">
+              <label for="beadSize">豆子大小</label>
+              <span><output id="beadSizeValue">8</output> px</span>
+            </div>
+            <input id="beadSize" type="range" min="8" max="24" step="1" value="8">
+          </div>
+
+          <div class="control-row">
+            <div class="label-line">
+              <label for="gapSize">间距</label>
+              <span><output id="gapSizeValue">0</output> px</span>
+            </div>
+            <input id="gapSize" type="range" min="0" max="8" step="1" value="0">
+          </div>
+
+          <div class="control-row">
+            <div class="label-line">
+              <label>豆子形状</label>
+              <span>预览样式</span>
+            </div>
+            <div class="segmented" aria-label="豆子形状">
+              <button type="button" data-shape="round">圆形</button>
+              <button type="button" class="is-active" data-shape="square">方形</button>
+            </div>
+          </div>
+
+          <div class="control-row">
+            <label class="switch" for="boardToggle">
+              <span class="switch-text">
+                <strong>显示底板分区</strong>
+                <span>增加辅助线，其他参数不变。</span>
+              </span>
+              <input id="boardToggle" type="checkbox">
+              <span class="switch-track" aria-hidden="true"></span>
+            </label>
+          </div>
+
+          <div class="control-row board-settings">
+            <label for="boardSize">底板规格</label>
+            <select id="boardSize">
+              <option value="29">29 x 29</option>
+              <option value="30">30 x 30</option>
+              <option value="32">32 x 32</option>
+            </select>
+            <p class="board-summary" id="boardSummary">3 x 3，共 9 块底板；PDF 会按此规格分页。</p>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="primary" id="downloadBtn">下载图片</button>
+          <button type="button" class="primary" id="downloadPdfBtn">下载 PDF</button>
+          <button type="button" id="copyPaletteBtn">复制色表</button>
+          <button type="button" id="resetBtn">恢复默认</button>
+        </div>
+      </section>
+    </aside>
+
+    <section class="workspace" aria-label="拼豆预览">
+      <div class="stage">
+        <section class="panel preview-shell">
+          <div class="preview-head">
+            <div class="preview-title">
+              <h2>拼豆预览</h2>
+              <div class="status" id="statusText">拖动滑块会实时重新生成</div>
+            </div>
+            <div class="summary">
+              <div class="metric">
+                <strong id="metricSize">72 x 72</strong>
+                <span>图纸尺寸</span>
+              </div>
+              <div class="metric">
+                <strong id="metricColors">28</strong>
+                <span>使用颜色</span>
+              </div>
+              <div class="metric">
+                <strong id="metricBeads">5184</strong>
+                <span>预计数量</span>
+              </div>
+              <div class="metric">
+                <strong id="metricCanvas">576 px</strong>
+                <span>导出宽度</span>
+              </div>
+            </div>
+          </div>
+          <div class="canvas-wrap" id="canvasViewport">
+            <div class="canvas-tools" aria-label="画布查看工具">
+              <button type="button" id="zoomOutBtn" title="缩小画布" aria-label="缩小">−</button>
+              <output class="zoom-level" id="zoomLevel">100%</output>
+              <button type="button" id="zoomInBtn" title="放大画布" aria-label="放大">+</button>
+              <button type="button" class="fit-view" id="fitCanvasBtn" title="让整张图适合画布">适应</button>
+            </div>
+            <div class="canvas-stage" id="canvasStage">
+              <canvas id="beadCanvas" width="514" height="386" aria-label="拼豆图纸预览"></canvas>
+              <canvas id="boardOverlay" width="514" height="386" aria-hidden="true"></canvas>
+            </div>
+            <p class="empty-note" id="emptyNote">请先尝试上传一张照片</p>
+          </div>
+        </section>
+
+        <section class="panel palette-panel">
+          <h2>颜色清单</h2>
+          <div class="swatches" id="swatches" aria-live="polite"></div>
+        </section>
+      </div>
+    </section>
+  </div>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "拼豆工具",
+  "short_name": "拼豆",
+  "description": "把照片变成拼豆图纸，支持裁剪、色板、底板分区与 PDF 导出，可离线使用。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f8",
+  "theme_color": "#5279fb"
+}
